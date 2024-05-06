@@ -1,6 +1,4 @@
 package dev.com.kafkadev.config;
-
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.admin.AdminClientConfig;
 import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
@@ -10,14 +8,10 @@ import org.springframework.kafka.config.TopicBuilder;
 import org.springframework.kafka.core.KafkaAdmin;
 
 import java.util.HashMap;
-
 @Configuration
 @RequiredArgsConstructor
 public class kafka {
-
-
     public final KafkaProperties properties;
-
     @Bean
     public KafkaAdmin kafkaAdmin(){
         var configs = new HashMap<String,Object>();
@@ -25,11 +19,9 @@ public class kafka {
         return  new KafkaAdmin(configs);
     }
     @Bean
-    public  KafkaAdmin.NewTopics topics() {
-        return  new KafkaAdmin.NewTopics(
-                TopicBuilder.name("Str-topic").partitions(2).replicas(1).build()
+    public KafkaAdmin.NewTopics topics() {
+        return new KafkaAdmin.NewTopics(
+                TopicBuilder.name("dev").partitions(2).replicas(1).build()
         );
     }
-
-
 }

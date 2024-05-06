@@ -15,8 +15,8 @@ public class StringProduceResource {
     private  final StringProduceService service;
     @PostMapping
     public ResponseEntity<?> sendMessage(@RequestBody String message){
-       service.sendMessagem(message);
-       log.info(message);
+           service.sendMessagem(message,1);
+           log.info(message);
         return  ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }
