@@ -56,7 +56,8 @@ services:
       - kafka
       - payment 
     environment:
-      KAFKA_HOST: kafka:29092     
+      KAFKA_HOST: kafka:29092   
+        
 
 networks:
   broker-kafka:

@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  mysqlsrv:
+    image: mysql:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD: "developer"
+      MYSQL_DATABASE: "devdb"
+    ports:
+      - "3307:3306"  # Mapeia a porta 3307 do host para a porta 3306 do contêiner
+    volumes:
+      - /data/mysql:/var/lib/mysql
+    networks:
+      - dev-rede
+
+  adminer:
+    image: adminer
+    ports:
+      - "8080:8080"  # Assegure-se de usar aspas para consistência
+    networks:
+      - dev-rede
+
+networks:
+  dev-rede:
+    driver: bridge
