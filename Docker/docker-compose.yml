@@ -1,64 +1,54 @@
-version: '3'
+version: '3.8'
 
 services:
-  zookeeper:
-    image: confluentinc/cp-zookeeper:latest
-    networks:
-      - broker-kafka
+  oracledb:
+    image: container-registry.oracle.com/database/enterprise:19.3.0.0
+    container_name: oracledb
     environment:
-      ZOOKEEPER_CLIENT_PORT: 2181
-      ZOOKEEPER_TICK_TIME: 2000
-
-  kafka:
-    image: confluentinc/cp-kafka:latest
-    networks:
-      - broker-kafka
-    depends_on:
-      - zookeeper
+      ORACLE_SID: dev
+      ORACLE_PDB: PDB1
+      ORACLE_PWD: developer
+      ORACLE_CHARACTERSET: AL32UTF8
     ports:
-      - "9092:9092"
-    environment:
-      KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
-      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-
-  kafdrop:
-    image: obsidiandynamics/kafdrop:latest
+      - "1521:1521"  # Porta para acessar o banco de dados
+      - "5500:5500"  # Porta para acessar o Enterprise Manager (opcional)
+    volumes:
+      - oracle-data:/opt/oracle/oradata
+      - ./dumps:/opt/oracle/dumps  # Mapeamento de volume para dumps
     networks:
-      - broker-kafka
-    depends_on:
-      - kafka
-    ports:
-      - "19000:9000"
-    environment:
-      KAFKA_BROKERCONNECT: kafka:29092
+      - oraclenet
 
-  payment:
-    image: adrileyf/payment-service:1.0.1
-           
-    networks:
-      - broker-kafka     
-    depends_on:
-      - kafka
-    ports:
-      - "8000:8000"
-    environment:
-      KAFKA_HOST: kafka:29092
-
-  consumer:
-    image: adrileyf/jsonconsumer:1.0.1
-    networks:
-      - broker-kafka     
-    depends_on:
-      - kafka
-      - payment 
-    environment:
-      KAFKA_HOST: kafka:29092   
-        
+volumes:
+  oracle-data:
+    driver: local
 
 networks:
-  broker-kafka:
+  oraclenet:
     driver: bridge
+
+
+
+sqlplus sys/developer@dev as sysdba
+
+
+
+CREATE TABLESPACE desenv
+DATAFILE '/opt/oracle/oradata/ORCLCDB/desenv.dbf'DATAFILE '/opt/oracle/oradata/ORCLCDB/desenv.dbf'
+
+SIZE 30GB
+AUTOEXTEND ON
+NEXT 10M MAXSIZE UNLIMITED;
+
+
+impdp dbteste/developer@dev directory=DATA_PUMP_DIR dumpfile=f.dmp logfile=import.log
+
+
+scp f.dmp adriley@192.168.1.17:/desenvolvimento/dumps/
+
+Esse funciona 
+
+CREATE TABLESPACE app
+DATAFILE '/opt/oracle/oradata/DEV/app.dbf'
+SIZE 5G
+AUTOEXTEND ON
+NEXT 1G;
